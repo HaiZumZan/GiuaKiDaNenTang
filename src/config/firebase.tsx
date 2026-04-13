@@ -1,8 +1,7 @@
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
 import { getReactNativePersistence, initializeAuth } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
-
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBk0ydOTnNRvJf9fYnYS7u14OyAnRvV1hE",
@@ -20,13 +19,3 @@ export const auth = initializeAuth(app, {
 });
 
 export const db = getFirestore(app);
-
-// Kiểm tra uid có trong collection admins không
-export const checkIsAdmin = async (uid: string): Promise<boolean> => {
-  try {
-    const snap = await getDoc(doc(db, "admins", uid));
-    return snap.exists() && snap.data()?.isActive === true;
-  } catch {
-    return false;
-  }
-};

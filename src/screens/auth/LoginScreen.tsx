@@ -1,4 +1,4 @@
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -8,9 +8,9 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
 } from "react-native";
-import { auth, checkIsAdmin } from "../config/firebase";
+import { auth } from "../../config/firebase";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -24,21 +24,8 @@ export default function LoginScreen({ navigation }) {
     }
     setLoading(true);
     try {
-      const { user } = await signInWithEmailAndPassword(auth, email, password);
-
-      // Kiểm tra quyền admin ngay sau khi đăng nhập
-      const adminStatus = await checkIsAdmin(user.uid);
-      if (!adminStatus) {
-        // Đăng xuất ngay nếu không phải admin
-        await signOut(auth);
-        Alert.alert(
-          "Không có quyền truy cập",
-          "Tài khoản này không phải Admin.\nVui lòng liên hệ quản trị viên.",
-        );
-        return;
-      }
-      // Nếu là admin → AppNavigator tự điều hướng sang Home
-    } catch (error: any) {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
       let msg = "Đăng nhập thất bại";
       if (error.code === "auth/user-not-found") msg = "Tài khoản không tồn tại";
       if (error.code === "auth/wrong-password") msg = "Sai mật khẩu";
@@ -87,10 +74,9 @@ export default function LoginScreen({ navigation }) {
         )}
       </TouchableOpacity>
 
-      {/* Không có nút Register — admin chỉ được tạo thủ công trên Console */}
-      <Text style={styles.note}>
-        Tài khoản Admin được cấp bởi quản trị viên hệ thống
-      </Text>
+      <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+        <Text style={styles.link}>Chưa có tài khoản? Đăng ký ngay</Text>
+      </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }
@@ -132,5 +118,5 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   btnText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  note: { textAlign: "center", color: "#bdc3c7", fontSize: 13, marginTop: 8 },
+  link: { textAlign: "center", color: "#3498db", fontSize: 15 },
 });
